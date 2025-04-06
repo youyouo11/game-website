@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Game Menu</title>
+  <style>
+    body {
+      margin: 0;
+      height: 100vh;
+      background-color: black;
+      color: white;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-family: sans-serif;
+    }
+    .screen {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      gap: 20px;
+    }
+    .active {
+      display: flex;
+    }
+    button {
+      padding: 15px 40px;
+      font-size: 20px;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+    .start-btn {
+      background: white;
+      color: black;
+    }
+    .start-btn:hover {
+      background: #ddd;
+    }
+    .game-btn {
+      background: black;
+      color: white;
+      border: 2px solid white;
+    }
+    .game-btn:hover {
+      background: #444;
+    }
+    .exit-btn {
+      background: black;
+      color: red;
+      border: 2px solid red;
+    }
+    .exit-btn:hover {
+      background: #330000;
+    }
+    .credits-btn {
+      background: black;
+      color: #00ffff;
+      border: 2px solid #00ffff;
+    }
+    .credits-btn:hover {
+      background: #003333;
+    }
+    .btn-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+    }
+    .credits-container {
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <div class="screen active" id="startScreen">
+    <div class="btn-container">
+      <button class="start-btn" onclick="goToGameOptions()">Start</button>
+      <button class="credits-btn" onclick="showCredits()">Credits</button>
+      <button class="exit-btn" onclick="confirmExit()">Exit</button>
+    </div>
+  </div>
+  <div class="screen" id="gameOptions">
+    <div class="btn-container">
+      <button class="game-btn" onclick="window.location.href='gameStruct.html'">Game 1: QUIZSICS</button>
+      <button class="game-btn" onclick="window.location.href='MakeTheBlockFall.html'">Game 2: Make the Block Fall</button>
+      <button class="game-btn" onclick="window.location.href='HitTheRedBox.html'">Game 3: Hit the Red Box</button>
+      <button class="game-btn" onclick="window.location.href='weight.html'">Game</button>
+      <button class="exit-btn" onclick="goToStart()">Back</button>
+    </div>
+  </div>
+  <div class="screen" id="creditsScreen">
+    <div class="credits-container">
+      <h1>Researcher</h1>
+      <ul>
+        <li><h2>Ar Jey B. Gumela II</h2></li>
+        <li><h2>Brian Benedict C. Nebre</h2></li>
+        <li><h2>Collyn P. Garcia</h2></li>
+        <li><h2>Hannah L. Rosento</h2></li>
+        <li><h2>Jon Victor E. Manzano</h2></li>
+        <li><h2>Kharl Dave Babista, B</h2></li>
+        <li><h2>Mark Clemins R. Biton</h2></li>
+        <li><h2>Phorcia Andrea C. Padilla</h2></li>
+        <li><h2>Prince Mhark Glenn B. Tabontabon</h2></li>
+        <li><h2>Ryle Hedric T. Hangad</h2></li>
+      </ul>
+      <button class="exit-btn" onclick="goToStart()">Back</button>
+    </div>
+  </div>
+  <script>
+    function goToGameOptions() {
+      document.getElementById('startScreen').classList.remove('active');
+      document.getElementById('creditsScreen').classList.remove('active');
+      document.getElementById('gameOptions').classList.add('active');
+    }
+
+    function goToStart() {
+      document.getElementById('gameOptions').classList.remove('active');
+      document.getElementById('creditsScreen').classList.remove('active');
+      document.getElementById('startScreen').classList.add('active');
+    }
+
+    function showCredits() {
+      document.getElementById('startScreen').classList.remove('active');
+      document.getElementById('creditsScreen').classList.add('active');
+    }
+
+    function confirmExit() {
+      const confirmQuit = confirm("Are you sure you want to quit?");
+      if (confirmQuit) {
+        window.open('', '_self'); 
+        window.close();
+      }
+    }
+  </script>
+</body>
+</html>

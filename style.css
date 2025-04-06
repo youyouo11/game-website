@@ -1,0 +1,83 @@
+body {
+    text-align: center;
+    background-image: url("https://media.istockphoto.com/id/936903524/vector/blackboard-inscribed-with-scientific-formulas-and-calculations-in-physics-and-mathematics-can.jpg?s=1024x1024&w=is&k=20&c=t0hLsuRdtnbLwAu5UMC46_ATICIJX0N3KteUaxhFH-0=");
+    font-family: Arial, sans-serif;
+}
+
+#resetButton{
+    border-radius: 13%;
+}
+
+canvas {
+    display: block;
+    margin: 0 auto;
+    background-color: #ddd;
+}
+
+#info {
+    margin: 10px;
+    font-size: 18px;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    gap: 2%;
+    color: burlywood;
+    background-color: black;
+}
+
+h1{
+    color: bisque;
+    background-color: black;
+}
+
+button {
+    padding: 10px 20px;
+    font-size: 16px;
+    margin-bottom: 10px;
+    cursor: pointer;
+}
+
+#QuitButton{
+    border-radius: 13%;
+}
+
+canvas {
+    display: block;
+    margin: 0 auto;
+    background-color: #ddd;
+}
+
+#info {
+    margin: 10px;
+    font-size: 18px;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    gap: 2%;
+    color: burlywood;
+    background-color: black;
+}
+
+h1{
+    color: bisque;
+    background-color: black;
+}
+
+button {
+    padding: 10px 20px;
+    font-size: 16px;
+    margin-bottom: 10px;
+    cursor: pointer;
+}
+#stars-bg {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: -1;
+    width: 100%;
+    height: 100%;
+    background: black;
+  }
+  

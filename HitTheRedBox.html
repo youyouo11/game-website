@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Hit it - Hard Mode</title>
+<style>
+body {
+  margin: 0;
+  height: 100vh;
+  background-color: black;
+  background-size: cover;
+  background-position: center;
+  color: white;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+  position: relative;
+}
+
+#gameCanvas {
+  display: block;
+  max-width: 100%;
+  max-height: 100%;
+  border: 1px solid white;
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 1;
+}
+
+h1 {
+  font-size: 2rem;
+  position: absolute;
+  top: 20px;
+  color: white;
+  z-index: 10;
+}
+
+.info {
+  position: absolute;
+  top: 80px;
+  z-index: 10;
+  color: white;
+  font-size: 1.2rem;
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+}
+
+.info p {
+  margin: 0;
+}
+
+.btn-container {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  z-index: 10;
+}
+
+.btn {
+  display: inline-block;
+  margin: 10px;
+  padding: 15px 30px 20px;
+  font-size: 18px;
+  text-decoration: none;
+  color: white;
+  background-color: black;
+  border-radius: 5px;
+  cursor: pointer;
+  border: 2px solid white;
+  transition: background-color 0.3s;
+}
+
+.btn:hover {
+  background-color: #444;
+}
+</style>
+</head>
+<body>
+
+<h1>Hit The Red Box</h1>
+
+<div class="info">
+  <p>Speed: <span id="speedLabel">0</span> m/s</p>
+  <p>Distance: <span id="distanceLabel">0</span> m</p>
+  <p>Acceleration: <span id="accelerationLabel">0</span> m/s²</p>
+  <p>Force: <span id="forceLabel">0</span> N</p>
+</div>
+
+<canvas id="gameCanvas"></canvas>
+
+<div class="btn-container">
+  <button class="btn" id="resetButton">Reset</button>
+  <button class="btn" id="quitButton">Quit</button>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/matter-js/0.19.0/matter.min.js"></script>
+<script>
+let Engine = Matter.Engine,
+    Render = Matter.Render,
+    Runner = Matter.Runner,
+    World = Matter.World,
+    Bodies = Matter.Bodies,
+    Constraint = Matter.Constraint,
+    Mouse = Matter.Mouse,
+    MouseConstraint = Matter.MouseConstraint,
+    Events = Matter.Events;
+
+let engine = Engine.create();
+let world = engine.world;
+
+const canvas = document.getElementById("gameCanvas");
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
+
+let render = Render.create({
+  element: document.body,
+  engine: engine,
+  canvas: canvas,
+  options: {
+    width: canvas.width,
+    height: canvas.height,
+    wireframes: false
+  }
+});
+
+Render.run(render);
+let runner = Runner.create();
+Runner.run(runner, engine);
+
+let ground = Bodies.rectangle(canvas.width / 2, canvas.height - 40, canvas.width, 40, { isStatic: true, render: { fillStyle: "brown" } });
+World.add(world, ground);
+
+let rockOptions = { density: 0.004, restitution: 0.3 };  
+let rock = Bodies.circle(150, 450, 20, rockOptions);
+let anchor = { x: 150, y: 450 };
+
+let elastic = Constraint.create({
+  pointA: anchor,
+  bodyB: rock,
+  stiffness: 0.05,
+  render: { strokeStyle: "red" }
+});
+
+World.add(world, [rock, elastic]);
+
+let mouse = Mouse.create(render.canvas);
+let mouseConstraint = MouseConstraint.create(engine, {
+  mouse: mouse,
+  constraint: {
+    stiffness: 0.2,
+    render: { visible: false }
+  }
+});
+
+World.add(world, mouseConstraint);
+render.mouse = mouse;
+
+let previousRock = null;
+let launchTime = null;
+let initialPosition = null;
+
+let building1 = Bodies.rectangle(900, 100, 60, 150, { friction: 0.7, restitution: 0.4, render: { fillStyle: "black" } });
+let building2 = Bodies.rectangle(1000, 280, 60, 140, { friction: 0.7, restitution: 0.4, render: { fillStyle: "black" } });
+let building3 = Bodies.rectangle(1100, 390, 60, 160, { friction: 0.7, restitution: 0.4, render: { fillStyle: "black" } });
+let building4 = Bodies.rectangle(800, 250, 80, 120, { friction: 0.6, restitution: 0.3, render: { fillStyle: "black" } });
+
+World.add(world, [building1, building2, building3, building4]);
+
+let target = Bodies.rectangle(1300, 300, 60, 60, { isStatic: true, render: { fillStyle: "red" } });
+let targetSpeed = 2; 
+World.add(world, target);
+
+Events.on(engine, "beforeUpdate", function() {
+  target.position.x += targetSpeed;
+  if (target.position.x > canvas.width || target.position.x < 0) {
+    targetSpeed *= -1; 
+  }
+});
+
+Events.on(mouseConstraint, "enddrag", function(event) {
+  if (event.body === rock) {
+    launchTime = Date.now();
+    initialPosition = { x: rock.position.x, y: rock.position.y };
+  }
+});
+
+Events.on(engine, "afterUpdate", function () {
+  if (mouseConstraint.mouse.button === -1 && (rock.position.x > 170 || rock.position.y < 430)) {
+    if (previousRock) {
+      World.remove(world, previousRock);
+    }
+    previousRock = rock;
+    rock = Bodies.circle(150, 450, 20, rockOptions);
+    World.add(world, rock);
+    elastic.bodyB = rock;
+  }
+});
+
+Events.on(engine, "collisionStart", function(event) {
+  event.pairs.forEach(pair => {
+    const bodies = [pair.bodyA, pair.bodyB];
+
+    const hitTarget = bodies.includes(target);
+    const hitGround = bodies.includes(ground);
+    
+    if (hitGround || hitTarget) {
+      let endTime = Date.now();
+      let timeTaken = (endTime - launchTime) / 1000;
+
+      let finalPosition = rock.position;
+      let distance = Math.sqrt(
+        Math.pow(finalPosition.x - initialPosition.x, 2) +
+        Math.pow(finalPosition.y - initialPosition.y, 2)
+      );
+
+      let velocity = Math.sqrt(
+        Math.pow(rock.velocity.x, 2) + Math.pow(rock.velocity.y, 2)
+      );
+
+      let acceleration = velocity / timeTaken;
+      let mass = rock.mass;
+      let force = mass * acceleration;
+
+      document.getElementById("speedLabel").innerText = velocity.toFixed(2);
+      document.getElementById("distanceLabel").innerText = distance.toFixed(2);
+      document.getElementById("accelerationLabel").innerText = acceleration.toFixed(2);
+      document.getElementById("forceLabel").innerText = force.toFixed(2);
+    }
+
+    if (bodies.includes(building1)) {
+      Matter.Body.applyForce(building1, building1.position, { x: 0.05, y: -0.05 });
+    }
+
+    if (bodies.includes(building2)) {
+      Matter.Body.applyForce(building2, building2.position, { x: 0.05, y: -0.05 });
+    }
+
+    if (bodies.includes(building3)) {
+      Matter.Body.applyForce(building3, building3.position, { x: 0.05, y: -0.05 });
+    }
+
+    if (bodies.includes(building4)) {
+      Matter.Body.applyForce(building4, building4.position, { x: 0.05, y: -0.05 });
+    }
+
+    if (hitTarget) {
+      World.remove(world, target);
+      target = Bodies.rectangle(1300, Math.random() * 600, 60, 60, { isStatic: true, render: { fillStyle: "red" } });
+      World.add(world, target);
+      targetSpeed += 0.5;
+    }
+  });
+});
+
+document.getElementById("resetButton").addEventListener("click", function() {
+  location.reload();
+});
+
+document.getElementById("quitButton").addEventListener("click", function() {
+  window.location.href = "mainMenu.html";
+});
+</script>
+
+</body>
+</html>
